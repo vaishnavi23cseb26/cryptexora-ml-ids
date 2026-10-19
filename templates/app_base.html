@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="{{ url_for('dashboard') }}">
+      <span class="brand-icon">🛡️</span><span class="brand-name">Cryptexora</span>
+    </a>
+    <nav>
+      <div class="nav-label">Main</div>
+      <a class="nav-link {{ 'active' if page == 'dashboard' }}" href="{{ url_for('dashboard') }}"><span class="nav-icon">📊</span>Dashboard</a>
+      <a class="nav-link {{ 'active' if page == 'overview' }}" href="{{ url_for('overview') }}"><span class="nav-icon">🏠</span>Overview</a>
+      <div class="nav-label">Security</div>
+      <a class="nav-link {{ 'active' if page == 'detect' }}" href="{{ url_for('detect') }}"><span class="nav-icon">🔍</span>IDS Detection</a>
+      <a class="nav-link {{ 'active' if page == 'logs' }}" href="{{ url_for('logs') }}"><span class="nav-icon">📋</span>Traffic Logs</a>
+    </nav>
+    <div class="user-card">
+      <div class="avatar">{{ current_user[0]|upper }}</div>
+      <div class="user-text"><strong>{{ current_user|capitalize }}</strong><span>{{ session.get('role', 'Security Analyst') }}</span></div>
+      <form method="post" action="{{ url_for('logout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button class="logout-btn" type="submit" title="Sign out" aria-label="Sign out">⏻</button>
+      </form>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="breadcrumb">Home › {% block crumb %}{% endblock %}</div>
+    <h1 class="page-title">{% block heading %}{% endblock %}</h1>
+    <p class="page-sub">{% block subheading %}{% endblock %}</p>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}<div class="flash flash-{{ category }}">{{ message }}</div>{% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{
+  "algorithm": "K-Nearest Neighbors (KNN)",
+  "best_k": 5,
+  "cv_accuracy": 0.975,
+  "accuracy": 1.0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1": 1.0,
+  "confusion_matrix": [
+    [
+      72,
+      0
+    ],
+    [
+      0,
+      48
+    ]
+  ],
+  "train_rows": 480,
+  "test_rows": 120,
+  "normal_rows": 360,
+  "suspicious_rows": 240,
+  "normal_profile": {
+    "duration": {
+      "typical_max": 51.6
+    },
+    "packet_count": {
+      "typical_max": 337.4
+    },
+    "bytes_transferred": {
+      "typical_max": 216702.9
+    },
+    "failed_connections": {
+      "typical_max": 3.0
+    }
+  },
+  "sklearn_version": "1.9.1",
+  "trained_at": "2026-10-18 22:52"
+}

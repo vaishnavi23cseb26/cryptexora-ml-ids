@@ -1,0 +1,64 @@
+{% extends "app_base.html" %}
+{% block title %}IDS Detection{% endblock %}
+{% block crumb %}Security › IDS Detection{% endblock %}
+{% block heading %}IDS Detection Module{% endblock %}
+{% block subheading %}Analyze traffic features with the trained KNN model to flag suspicious behaviour{% endblock %}
+{% block content %}
+<div class="two-col">
+  <section class="panel">
+    <div class="panel-head"><h2>🔍 Analyze Traffic</h2></div>
+    <p class="muted">Fill in the traffic details and click Analyze to get a prediction</p>
+
+    <div class="field-label">Quick fill presets</div>
+    <div class="chips">
+      <button type="button" class="chip" data-preset="normal">✅ Normal Traffic</button>
+      <button type="button" class="chip" data-preset="ddos">🚨 DDoS Simulation</button>
+      <button type="button" class="chip" data-preset="probe">🔎 Port Probe</button>
+      <button type="button" class="chip" data-preset="brute">⚠️ Brute Force</button>
+    </div>
+
+    <form id="detect-form" novalidate>
+      <label class="field-label" for="ip_address">🌐 IP address <span class="hint">(label only - not used by the model)</span></label>
+      <input class="input" id="ip_address" name="ip_address" type="text" value="192.168.1.10" required>
+
+      <div class="grid-2">
+        <div>
+          <label class="field-label" for="duration">⏱️ Duration (seconds)</label>
+          <input class="input" id="duration" name="duration" type="number" min="0" step="0.1" value="12.5" required>
+        </div>
+        <div>
+          <label class="field-label" for="packet_count">📦 Packet count</label>
+          <input class="input" id="packet_count" name="packet_count" type="number" min="1" step="1" value="45" required>
+        </div>
+        <div>
+          <label class="field-label" for="bytes_transferred">💾 Bytes transferred</label>
+          <input class="input" id="bytes_transferred" name="bytes_transferred" type="number" min="0" step="1" value="38000" required>
+        </div>
+        <div>
+          <label class="field-label" for="failed_connections">❌ Failed connections</label>
+          <input class="input" id="failed_connections" name="failed_connections" type="number" min="0" step="1" value="0" required>
+        </div>
+      </div>
+      <div id="form-error" class="flash flash-error" hidden></div>
+      <button id="analyze-btn" class="btn btn-primary btn-block" type="submit">⚡ Analyze Traffic</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>📊 Analysis Result</h2></div>
+    <p class="muted">Results will appear here after you analyze traffic</p>
+    <div id="result-empty" class="result-banner result-idle"><div class="result-emoji">🧠</div><div class="result-text">AWAITING INPUT</div></div>
+    <div id="result-box" hidden>
+      <div id="result-banner" class="result-banner"><div id="result-emoji" class="result-emoji"></div><div id="result-text" class="result-text"></div></div>
+      <ul class="kv" id="result-rows"></ul>
+      <div id="reason-box" class="reason-box" hidden><div class="reason-title">Why was this flagged?</div><ul id="reason-list"></ul></div>
+    </div>
+  </section>
+</div>
+
+<div class="notice">
+  ℹ️ The prediction comes from the <strong>traffic features</strong>, not from the IP address. The same IP can be normal one minute and suspicious the next.
+  Results are saved to the <a class="link" href="{{ url_for('logs') }}">Traffic Logs</a>.
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/detect.js') }}"></script>{% endblock %}

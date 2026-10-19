@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block body %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <section class="auth-hero">
+      <div class="hero-circle c1"></div><div class="hero-circle c2"></div>
+      <div class="hero-brand">
+        <span class="brand-icon">🛡️</span>
+        <div><div class="hero-name">Cryptexora</div><div class="hero-tag">Intrusion Detection System</div></div>
+      </div>
+      <h2>Spot suspicious traffic with machine learning.</h2>
+      <ul class="hero-list">
+        <li><span class="mini-icon">🔍</span>Traffic feature analysis</li>
+        <li><span class="mini-icon">🧠</span>KNN classifier (scikit-learn)</li>
+        <li><span class="mini-icon">📋</span>Complete detection history</li>
+        <li><span class="mini-icon">📊</span>Visual dashboard</li>
+      </ul>
+      <div class="hero-foot">© 2026 Cryptexora IDS · v2.0 (ML edition)</div>
+    </section>
+
+    <section class="auth-form">
+      <h1>Welcome back 👋</h1>
+      <p class="muted">Sign in to access your security dashboard</p>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}<div class="flash flash-{{ category }}">{{ message }}</div>{% endfor %}
+      {% endwith %}
+      <form method="post" autocomplete="off">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label class="field-label" for="username">Username</label>
+        <input class="input" id="username" name="username" type="text" required autofocus>
+        <label class="field-label" for="password">Password</label>
+        <input class="input" id="password" name="password" type="password" required>
+        <button class="btn btn-primary btn-block" type="submit">🔐 Sign In</button>
+      </form>
+      <div class="demo-box">🧪 Demo credentials:<br><strong>Username:</strong> admin &nbsp;|&nbsp; <strong>Password:</strong> admin123</div>
+    </section>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "app_base.html" %}
+{% block title %}Traffic Logs{% endblock %}
+{% block crumb %}Security › Traffic Logs{% endblock %}
+{% block heading %}Traffic Logs{% endblock %}
+{% block subheading %}Complete history of all IDS scan results{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <div class="chips">
+    <a class="chip {{ 'active' if result_filter not in ('suspicious', 'normal') }}" href="{{ url_for('logs', q=search_text) }}">📋 All Logs</a>
+    <a class="chip {{ 'active' if result_filter == 'suspicious' }}" href="{{ url_for('logs', filter='suspicious', q=search_text) }}">🚨 Suspicious Only</a>
+    <a class="chip {{ 'active' if result_filter == 'normal' }}" href="{{ url_for('logs', filter='normal', q=search_text) }}">✅ Normal Only</a>
+  </div>
+  <div class="toolbar-actions">
+    <a class="btn btn-ghost" href="{{ url_for('export_logs', filter=result_filter, q=search_text) }}">⬇️ Export CSV</a>
+    <form method="post" action="{{ url_for('clear_logs') }}" data-confirm="Delete ALL detection logs? This cannot be undone.">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button class="btn btn-danger" type="submit">🗑️ Clear All Logs</button>
+    </form>
+  </div>
+</div>
+
+<section class="panel flush">
+  <div class="table-head">
+    <div>Showing <strong>{{ rows|length }}</strong> of <strong>{{ totals.total }}</strong> records</div>
+    <form method="get" class="search">
+      {% if result_filter in ('suspicious', 'normal') %}<input type="hidden" name="filter" value="{{ result_filter }}">{% endif %}
+      <input class="input search-input" type="search" name="q" value="{{ search_text }}" placeholder="🔍 Search IP, details…">
+    </form>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>#</th><th>Timestamp</th><th>IP address</th><th>Traffic features</th><th>Result</th><th>Confidence</th><th>Severity</th><th>Details</th></tr></thead>
+      <tbody>
+      {% for r in rows %}
+        <tr class="row-{{ r.prediction }}">
+          <td class="muted">{{ r.id }}</td>
+          <td class="nowrap">{{ r.created_at }}</td>
+          <td><code class="ip">{{ r.ip_address }}</code></td>
+          <td class="features">{{ '%g'|format(r.duration) }} s · {{ r.packet_count }} pkts<br>{{ r.bytes_transferred }} B · {{ r.failed_connections }} failed</td>
+          <td><span class="pill pill-{{ r.prediction }}">{{ '🚨 SUSPICIOUS' if r.prediction == 'suspicious' else '✅ NORMAL' }}</span></td>
+          <td>{{ r.confidence }}%</td>
+          <td><span class="pill pill-{{ r.severity }}">{{ r.severity|upper }}</span></td>
+          <td class="details">{{ r.details }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="8" class="empty">No records found.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="table-foot">
+    <span>Total: <strong>{{ totals.total }}</strong></span>
+    <span>Suspicious: <strong class="text-red">{{ totals.suspicious }}</strong></span>
+    <span>Normal: <strong class="text-green">{{ totals.normal }}</strong></span>
+    <span>Latest scan by: <strong>{{ latest_user|capitalize }}</strong></span>
+  </div>
+</section>
+{% endblock %}

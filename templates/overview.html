@@ -1,0 +1,56 @@
+{% extends "app_base.html" %}
+{% block title %}Overview{% endblock %}
+{% block crumb %}Main › Overview{% endblock %}
+{% block heading %}How Cryptexora Works{% endblock %}
+{% block subheading %}A plain-English guide to the machine-learning model{% endblock %}
+{% block content %}
+<div class="feature-grid">
+  <div class="panel feature"><span class="feature-icon">🔍</span><h3>Traffic Features</h3><p>Each connection is described by 4 numbers instead of looking at the IP address.</p></div>
+  <div class="panel feature"><span class="feature-icon">🧠</span><h3>KNN Model</h3><p>K-Nearest Neighbors compares a new connection with the most similar known ones and lets them vote.</p></div>
+  <div class="panel feature"><span class="feature-icon">📋</span><h3>Audit Logs</h3><p>Every prediction is saved in SQLite with time, features, result and explanation.</p></div>
+  <div class="panel feature"><span class="feature-icon">📊</span><h3>Live Dashboard</h3><p>Totals for scans, suspicious and normal traffic at a glance.</p></div>
+</div>
+
+<section class="panel">
+  <div class="panel-head"><h2>🗺️ How a prediction is made</h2></div>
+  <div class="steps">
+    <div class="step"><span class="step-no">1</span><h4>Enter features</h4><p>Type in (or pick a preset for) duration, packet count, bytes and failed connections.</p></div>
+    <div class="step"><span class="step-no">2</span><h4>Scale the numbers</h4><p>Values are log-scaled and standardised so big numbers don't overpower small ones.</p></div>
+    <div class="step"><span class="step-no">3</span><h4>Find {{ metrics.best_k }} neighbours</h4><p>The model finds the {{ metrics.best_k }} most similar records in the training data.</p></div>
+    <div class="step"><span class="step-no">4</span><h4>Vote &amp; log</h4><p>Majority vote gives Normal or Suspicious, plus a confidence. The result is stored.</p></div>
+  </div>
+</section>
+
+<div class="two-col">
+  <section class="panel">
+    <div class="panel-head"><h2>🔢 The 4 features</h2></div>
+    <ul class="kv">
+      <li><span>⏱️ Connection duration</span><strong>How long it lasted. Floods are often very short.</strong></li>
+      <li><span>📦 Packet count</span><strong>How many packets were sent. Huge counts can mean flooding.</strong></li>
+      <li><span>💾 Bytes transferred</span><strong>Total data volume sent.</strong></li>
+      <li><span>❌ Failed connections</span><strong>Failed attempts. Many failures suggest scanning or password guessing.</strong></li>
+    </ul>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>🎯 Model performance</h2></div>
+    <ul class="kv">
+      <li><span>Accuracy (test set)</span><strong>{{ '%.1f'|format(metrics.accuracy * 100) }}%</strong></li>
+      <li><span>Precision</span><strong>{{ '%.1f'|format(metrics.precision * 100) }}%</strong></li>
+      <li><span>Recall</span><strong>{{ '%.1f'|format(metrics.recall * 100) }}%</strong></li>
+      <li><span>Cross-validation accuracy</span><strong>{{ '%.1f'|format(metrics.cv_accuracy * 100) }}%</strong></li>
+      <li><span>Training / test rows</span><strong>{{ metrics.train_rows }} / {{ metrics.test_rows }}</strong></li>
+      <li><span>Confusion matrix</span><strong>TN {{ metrics.confusion_matrix[0][0] }} · FP {{ metrics.confusion_matrix[0][1] }} · FN {{ metrics.confusion_matrix[1][0] }} · TP {{ metrics.confusion_matrix[1][1] }}</strong></li>
+    </ul>
+  </section>
+</div>
+
+<div class="notice warn">
+  ⚠️ <strong>Important limitations</strong>
+  <ul>
+    <li>The dataset is <strong>synthetic sample data</strong> ({{ metrics.normal_rows + metrics.suspicious_rows }} rows), so the accuracy shown is a learning demo, not a claim about real-world protection.</li>
+    <li>The model predicts from <strong>traffic features only</strong>. An IP address alone is never proof of malicious activity.</li>
+    <li>It does <strong>not</strong> monitor live network traffic or capture packets. You enter values or use the presets.</li>
+    <li>A "suspicious" result is a prompt to investigate, not a final verdict.</li>
+  </ul>
+</div>
+{% endblock %}

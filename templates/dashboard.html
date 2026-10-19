@@ -1,0 +1,55 @@
+{% extends "app_base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block crumb %}Security › Dashboard{% endblock %}
+{% block heading %}Security Dashboard{% endblock %}
+{% block subheading %}Detection statistics and recent activity{% endblock %}
+{% block content %}
+<div class="stat-grid">
+  <div class="panel stat"><span class="stat-icon">🔍</span><div class="stat-number">{{ stats.total }}</div><div class="stat-label">Total scans</div></div>
+  <div class="panel stat"><span class="stat-icon">🚨</span><div class="stat-number text-red">{{ stats.suspicious }}</div><div class="stat-label">Suspicious detected</div></div>
+  <div class="panel stat"><span class="stat-icon">✅</span><div class="stat-number text-green">{{ stats.normal }}</div><div class="stat-label">Normal traffic</div></div>
+  <div class="panel stat"><span class="stat-icon">🎯</span><div class="stat-number">{{ '%.0f'|format(metrics.accuracy * 100) }}%</div><div class="stat-label">Test accuracy (sample data)</div></div>
+</div>
+
+<div class="two-col">
+  <section class="panel">
+    <div class="panel-head"><h2>🕒 Recent Activity</h2><a class="link" href="{{ url_for('logs') }}">View all →</a></div>
+    {% if recent %}
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Time</th><th>IP address</th><th>Result</th><th>Severity</th></tr></thead>
+      <tbody>
+      {% for r in recent %}
+        <tr>
+          <td class="nowrap">{{ r.created_at }}</td>
+          <td><code class="ip">{{ r.ip_address }}</code></td>
+          <td><span class="pill pill-{{ r.prediction }}">{{ '🚨 SUSPICIOUS' if r.prediction == 'suspicious' else '✅ NORMAL' }}</span></td>
+          <td><span class="pill pill-{{ r.severity }}">{{ r.severity|upper }}</span></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {% else %}
+    <div class="empty">No scans yet. Go to <a class="link" href="{{ url_for('detect') }}">IDS Detection</a> and analyze some traffic.</div>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>📈 Traffic Mix</h2></div>
+    <div class="ratio-bar"><div class="ratio-fill" style="width: {{ suspicious_percent }}%"></div></div>
+    <p class="muted small">{{ suspicious_percent }}% of scans were predicted suspicious, {{ 100 - suspicious_percent if stats.total else 0 }}% normal.</p>
+    <div class="panel-head mt"><h2>🧠 Model</h2></div>
+    <ul class="kv">
+      <li><span>Algorithm</span><strong>KNN (k = {{ metrics.best_k }})</strong></li>
+      <li><span>Training rows</span><strong>{{ metrics.train_rows }}</strong></li>
+      <li><span>Test accuracy</span><strong>{{ '%.1f'|format(metrics.accuracy * 100) }}%</strong></li>
+      <li><span>Trained</span><strong>{{ metrics.trained_at }}</strong></li>
+    </ul>
+    <a class="btn btn-primary btn-block" href="{{ url_for('detect') }}">⚡ Analyze Traffic</a>
+  </section>
+</div>
+
+<div class="notice">
+  ℹ️ <strong>Please note:</strong> the model predicts from traffic <em>features</em> (duration, packets, bytes, failed connections).
+  An IP address alone is never treated as proof of malicious activity, and this app does <em>not</em> monitor live network traffic - you enter or demo the values yourself.
+</div>
+{% endblock %}
